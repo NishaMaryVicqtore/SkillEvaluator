@@ -1,0 +1,366 @@
+{
+  "skill": "brd",
+  "file": "C:\\Users\\nvicqto\\gs-ai-skillsets\\sdlc\\common\\brd\\SKILL.md",
+  "profile": "brd",
+  "evaluated_on": "2026-10-03",
+  "combined": 4.3533,
+  "verdict": "Acceptable with documented gaps",
+  "geval_weighted": 4.2,
+  "geval_mean": 4.1667,
+  "schema_passed": 23,
+  "schema_total": 26,
+  "schema_scaled": 4.4231,
+  "schema_valid": false,
+  "aspects": [
+    {
+      "id": "job_relevance",
+      "label": "Job relevance",
+      "weight": 0.2,
+      "geval": 5,
+      "schema_passed": 3,
+      "schema_total": 3,
+      "score": 5.0
+    },
+    {
+      "id": "coherence",
+      "label": "Coherence",
+      "weight": 0.2,
+      "geval": 4,
+      "schema_passed": 2,
+      "schema_total": 3,
+      "score": 3.7333
+    },
+    {
+      "id": "completeness",
+      "label": "Output completeness",
+      "weight": 0.25,
+      "geval": 4,
+      "schema_passed": 3,
+      "schema_total": 3,
+      "score": 4.4
+    },
+    {
+      "id": "actionability",
+      "label": "Actionability",
+      "weight": 0.15,
+      "geval": 4,
+      "schema_passed": 5,
+      "schema_total": 5,
+      "score": 4.4
+    },
+    {
+      "id": "governance",
+      "label": "Governance",
+      "weight": 0.15,
+      "geval": 4,
+      "schema_passed": 6,
+      "schema_total": 6,
+      "score": 4.4
+    },
+    {
+      "id": "fluency",
+      "label": "Fluency and structure",
+      "weight": 0.05,
+      "geval": 4,
+      "schema_passed": 4,
+      "schema_total": 6,
+      "score": 3.7333
+    }
+  ],
+  "criteria": [
+    {
+      "id": "job_relevance",
+      "criterion": "Job relevance",
+      "weight": 0.2,
+      "score": 5,
+      "requirement": "A skill whose job is to write a Business Requirements Document from an approved PRD, cover happy, alternate, exception, and operational workflows, and block architecture finals until BRD approval is recorded.",
+      "evidence": [
+        "The description states the job and includes a Use when trigger.",
+        "When to use and When NOT to use bound the job.",
+        "The default output path brd/BRD.md is named.",
+        "The hand-off names /prd, /architect."
+      ],
+      "gaps": []
+    },
+    {
+      "id": "coherence",
+      "criterion": "Coherence",
+      "weight": 0.2,
+      "score": 4,
+      "requirement": "One procedure, one mode vocabulary, and a drafting step tied to the output template, so an agent writing a /brd document does not invent the artifact.",
+      "evidence": [
+        "One procedure tells the agent which document to write.",
+        "Mode labels agree across the sections that declare them."
+      ],
+      "gaps": [
+        "subskills/package.md does not point at brd-template.md."
+      ]
+    },
+    {
+      "id": "completeness",
+      "criterion": "Output completeness",
+      "weight": 0.25,
+      "score": 4,
+      "requirement": "The pack specifies every field /brd must put in the document. A localized gap that does not drop a required field scores 4.",
+      "evidence": [
+        "approved PRD input is specified.",
+        "happy path is specified.",
+        "alternate path is specified.",
+        "exception path is specified.",
+        "operational path is specified.",
+        "RACI is specified.",
+        "compliance or audit is specified.",
+        "business rules is specified.",
+        "trace to the PRD is specified.",
+        "risk tier is specified.",
+        "architecture held for approval is specified.",
+        "approval record is specified."
+      ],
+      "gaps": [
+        "No eval scenario is in the pack, so the skill cannot be regression-tested from its own references."
+      ]
+    },
+    {
+      "id": "actionability",
+      "criterion": "Actionability",
+      "weight": 0.15,
+      "score": 4,
+      "requirement": "The happy path is executable: announce line, subskills, example, output path, and an approval question.",
+      "evidence": [
+        "The announce line is exact.",
+        "The subskill table points at files that exist.",
+        "A mini example shows the happy path.",
+        "The happy path names brd/BRD.md.",
+        "The pack asks for explicit approval."
+      ],
+      "gaps": [
+        "The happy path is executable, and an agent still has to choose a procedure or find the template."
+      ]
+    },
+    {
+      "id": "governance",
+      "criterion": "Governance",
+      "weight": 0.15,
+      "score": 4,
+      "requirement": "Approval, risk tier, and stop rules are explicit for /brd, and skipped controls carry an owner plus a review date.",
+      "evidence": [
+        "Silence is not approval.",
+        "Drafts come before finals, and finals wait for approval.",
+        "The risk-tier enum is present.",
+        "Examples do not contain secret markers."
+      ],
+      "gaps": [
+        "Pasted tickets and notes are not marked as untrusted input.",
+        "Deferred items require an owner and do not require a review date or compensating control."
+      ]
+    },
+    {
+      "id": "fluency",
+      "criterion": "Fluency and structure",
+      "weight": 0.05,
+      "score": 4,
+      "requirement": "The /brd pack is lean, scannable, and uses the canonical skill-card title.",
+      "evidence": [
+        "SKILL.md is 116 lines, under the 500-line bar.",
+        "Depth sits in subskills and references."
+      ],
+      "gaps": [
+        "The skill card title is '# SKILL_CARD \u00e2\u20ac\u201d brd'."
+      ]
+    }
+  ],
+  "assertions": [
+    {
+      "id": "name_kebab",
+      "aspect": "job_relevance",
+      "statement": "name is kebab-case and at most 64 characters",
+      "passed": true,
+      "detail": "name is 'brd' (3 characters)."
+    },
+    {
+      "id": "description_shape",
+      "aspect": "job_relevance",
+      "statement": "description is 40\u20131024 characters, third person, and contains \"Use when\"",
+      "passed": true,
+      "detail": "Description is third person and states when to use the skill."
+    },
+    {
+      "id": "disable_model_invocation",
+      "aspect": "fluency",
+      "statement": "disable-model-invocation is true",
+      "passed": true,
+      "detail": "Frontmatter sets disable-model-invocation: true."
+    },
+    {
+      "id": "line_count",
+      "aspect": "fluency",
+      "statement": "SKILL.md is 1\u2013500 lines",
+      "passed": true,
+      "detail": "SKILL.md is 116 lines."
+    },
+    {
+      "id": "required_h2",
+      "aspect": "fluency",
+      "statement": "Required H2 sections are present",
+      "passed": true,
+      "detail": "Required H2 sections are present."
+    },
+    {
+      "id": "announce",
+      "aspect": "actionability",
+      "statement": "Announce line contains `Running **/brd**`",
+      "passed": true,
+      "detail": "Announce line matches the skill name."
+    },
+    {
+      "id": "silence_not_approval",
+      "aspect": "governance",
+      "statement": "Body says silence is not approval",
+      "passed": true,
+      "detail": "Approval gate says silence is not approval."
+    },
+    {
+      "id": "risk_tier_enum",
+      "aspect": "governance",
+      "statement": "Risk tier enum low / medium / high / regulated is present",
+      "passed": true,
+      "detail": "Risk tier enum is present."
+    },
+    {
+      "id": "handoff",
+      "aspect": "job_relevance",
+      "statement": "Hand-off names the next skill",
+      "passed": true,
+      "detail": "Hand-off names /prd, /architect"
+    },
+    {
+      "id": "done_when_evidence",
+      "aspect": "fluency",
+      "statement": "The Done when section mentions evidence",
+      "passed": false,
+      "detail": "The word evidence is not in the Done when section."
+    },
+    {
+      "id": "forward_slashes",
+      "aspect": "actionability",
+      "statement": "Mini example uses forward slashes",
+      "passed": true,
+      "detail": "Mini example uses forward slashes."
+    },
+    {
+      "id": "no_secrets",
+      "aspect": "governance",
+      "statement": "No secret markers in the pack",
+      "passed": true,
+      "detail": "No secret markers found."
+    },
+    {
+      "id": "checklist_approval",
+      "aspect": "governance",
+      "statement": "Checklist records explicit approval",
+      "passed": true,
+      "detail": "Checklist names approval."
+    },
+    {
+      "id": "checklist_draft_before_finals",
+      "aspect": "actionability",
+      "statement": "Checklist drafts before finals",
+      "passed": true,
+      "detail": "Checklist shows a draft before finals."
+    },
+    {
+      "id": "stop_blocks_unapproved_finals",
+      "aspect": "governance",
+      "statement": "Stop condition blocks unapproved finals",
+      "passed": true,
+      "detail": "Stop conditions block an unapproved final."
+    },
+    {
+      "id": "subskills_resolve",
+      "aspect": "actionability",
+      "statement": "Subskill links exist, match subskills/*.md, and stay one level deep",
+      "passed": true,
+      "detail": "3 subskill links resolve at depth 1."
+    },
+    {
+      "id": "in_pack_links",
+      "aspect": "actionability",
+      "statement": "In-pack reference and subskill links resolve",
+      "passed": true,
+      "detail": "4 in-pack links resolve."
+    },
+    {
+      "id": "skill_card_exists",
+      "aspect": "fluency",
+      "statement": "SKILL_CARD.md exists",
+      "passed": true,
+      "detail": "SKILL_CARD.md is in the pack."
+    },
+    {
+      "id": "skill_card_title",
+      "aspect": "fluency",
+      "statement": "SKILL_CARD title is exactly `# SKILL_CARD \u2014 brd` with no BOM",
+      "passed": false,
+      "detail": "Expected # SKILL_CARD \u2014 brd. The file starts with a utf-8 bom; the title is mojibake '# skill_card \u00e2\u20ac\u201d brd'."
+    },
+    {
+      "id": "one_mode_vocabulary",
+      "aspect": "coherence",
+      "statement": "Checklist, phase 0, and the universal workflow use one mode vocabulary",
+      "passed": true,
+      "detail": "Mode labels agree: new product | existing | feature-on-existing | other"
+    },
+    {
+      "id": "single_procedure",
+      "aspect": "coherence",
+      "statement": "The pack has one procedure for the final document",
+      "passed": true,
+      "detail": "The pack describes one procedure for the final document."
+    },
+    {
+      "id": "drafting_cites_template",
+      "aspect": "coherence",
+      "statement": "subskills/package.md points at brd-template.md",
+      "passed": false,
+      "detail": "subskills/package.md does not contain brd-template.md."
+    },
+    {
+      "id": "template_headings",
+      "aspect": "completeness",
+      "statement": "Output template contains the required headings",
+      "passed": true,
+      "detail": "Template headings match the output schema."
+    },
+    {
+      "id": "brd_four_workflows",
+      "aspect": "completeness",
+      "statement": "Workflows cover happy, alternate, exception, and operational paths",
+      "passed": true,
+      "detail": "Workflow subskill and template name the four paths."
+    },
+    {
+      "id": "brd_raci",
+      "aspect": "completeness",
+      "statement": "BRD template includes a RACI",
+      "passed": true,
+      "detail": "Template includes RACI."
+    },
+    {
+      "id": "brd_architecture_gate",
+      "aspect": "governance",
+      "statement": "gate.md blocks architecture finals until BRD approval",
+      "passed": true,
+      "detail": "Gate holds architecture finals for BRD approval."
+    }
+  ],
+  "schema_errors": [
+    "checks.done_when_evidence: True was expected",
+    "checks.drafting_cites_template: True was expected",
+    "checks.skill_card_title: True was expected"
+  ],
+  "external_links": [
+    "../../../EXECUTION-STANDARD.md",
+    "../references/enterprise-controls.md",
+    "../references/enterprise-controls.md"
+  ]
+}

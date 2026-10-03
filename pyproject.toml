@@ -1,0 +1,25 @@
+[project]
+name = "skill-evaluator"
+version = "0.1.0"
+description = "Evaluate PRD and BRD skill packs with G-Eval and JSON/Markdown schema parsing."
+requires-python = ">=3.10"
+dependencies = [
+  "PyYAML>=6.0",
+  "jsonschema>=4.18",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+skill-evaluator = "skill_evaluator.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["skill_evaluator*"]
