@@ -212,3 +212,22 @@ def conflicting_procedures(parsed: ParsedSkill) -> str | None:
 
 def contains_secret(text: str) -> bool:
     return SECRET.search(text) is not None
+
+
+@dataclass
+class ParsedDocument:
+    path: Path
+    text: str
+    headings: list[tuple[int, str]]
+    sections: dict[str, str]
+
+
+def parse_document(path: Path) -> ParsedDocument:
+    path = path.resolve()
+    if path.is_dir():
+        raise ValueError(f"Pass the generated PRD file, not a directory: {path}")
+    if not path.is_file():
+        raise FileNotFoundError(f"Generated PRD not found: {path}")
+    text = path.read_text(encoding="utf-8-sig")
+    headings = [(len(match.group(1)), match.group(2).strip()) for match in HEADING.finditer(text)]
+    return ParsedDocument(path=path, text=text, headings=headings, sections=_sections(text))

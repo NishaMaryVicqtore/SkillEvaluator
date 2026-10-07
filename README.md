@@ -1,6 +1,6 @@
 # Skill evaluator
 
-Scores a skill pack written to generate a PRD or a BRD. Give it a `SKILL.md`. It reads that file and the Markdown beside it, then returns a score for each aspect.
+Scores a skill pack written to generate a PRD, a BRD, or an architecture design. Give it a `SKILL.md` on its own, or give it that skill file plus the document the skill produced.
 
 Two methods from the Grill skill review run on the same pack:
 
@@ -22,16 +22,54 @@ An aspect score is 40% schema and 60% G-Eval. The combined score weights the asp
 
 Schema parsing checks that the required boxes exist. G-Eval checks whether those boxes add up to a procedure an agent can follow. A heading can pass the schema and still leave two workflows that disagree.
 
+When a generated PRD is supplied, that document is scored on its own aspects:
+
+| Aspect | Weight | What it asks |
+| --- | ---: | --- |
+| Contract coverage | 0.25 | Every section required by the skill template is filled in |
+| Traceability | 0.20 | Each functional REQ identifier reappears in traceability |
+| Coherence | 0.20 | Identifiers are unique, and an approved PRD has no empty sections |
+| Governance | 0.15 | One risk tier, an approval status and date, and no secrets |
+| Testability | 0.20 | Each acceptance criterion names an observable outcome |
+
 ## Run
 
 ```powershell
 python -m pip install -r requirements.txt
 python -m skill_evaluator path\to\SKILL.md --output report.md --json report.json
+python -m skill_evaluator path\to\SKILL.md --prd path\to\PRD.md --output report.md --json report.json
+python -m skill_evaluator path\to\SKILL.md --brd path\to\BRD.md --output report.md --json report.json
+python -m skill_evaluator path\to\SKILL.md --design path\to\design.md --output report.md --json report.json
+python -m skill_evaluator --architect-skill path\to\architect\SKILL.md --design-skill path\to\design\SKILL.md --architect-doc path\to\architecture.md --design-doc path\to\design.md
 ```
 
-`--profile` accepts `auto`, `prd`, or `brd`. `auto` uses the frontmatter `name`, then the document title. Links that leave the skill directory are listed and are not scored. Files next to `SKILL.md` are part of the pack: subskills, the output template, and `SKILL_CARD.md`.
+On an interactive run, a PRD or BRD skill asks:
 
-`--fail-under 4.0` exits 1 when the combined score is below that line.
+1. PRD/BRD skill
+2. PRD/BRD skill along with the PRD/BRD document that was generated
+
+Choice 1 scores the skill pack with G-Eval and JSON/Markdown schema parsing. Choice 2 also scores the generated document. Pass `--prd` or `--brd` to select choice 2 without a prompt. The report keeps the skill-pack tables, and adds the generated document tables when a document is supplied. The combined score is the average of the two.
+
+PRD and BRD document aspects are contract coverage, traceability, coherence, governance, and testability.
+
+An architecture skill asks:
+
+1. Architect and Design skill
+2. Architect/Design skill along with the Architecture and design document that was generated
+
+Choice 2 asks for the architecture document and the design document. Press Enter on the architecture path when one file covers both, or pass `--design` for that single file. When the skills are different files, pass `--architect-skill` and `--design-skill`. When the documents are different files, pass `--architect-doc` and `--design-doc`.
+
+Every supplied skill and every supplied document is scored on all three algorithms:
+
+| Algorithm | What it checks |
+| --- | --- |
+| Schema parser | Required fields, Markdown syntax, and API formatting (OpenAPI, operationId, JSON example, security scheme, error model, HTTP path) |
+| G-Eval | Feasibility, security, scalability, tech-stack viability, security boundaries, and business alignment |
+| Topological graph validation | Dependency cycles (deadlocks), orphan modules, and coupling density |
+
+The combined score is the average of those scores. `--profile` accepts `auto`, `prd`, `brd`, or `architect`. `auto` uses the frontmatter `name`, then the document title. Links that leave the skill directory are listed and are not scored. Files next to `SKILL.md` are part of the pack: subskills, the output template, and `SKILL_CARD.md`.
+
+`--fail-under 4.0` exits 1 when the combined score is below that line. With a generated document, that line is the average of the skill score and the document score.
 
 ## Tests
 

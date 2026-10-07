@@ -1,4 +1,4 @@
-"""PRD and BRD skill profiles.
+"""PRD, BRD, and architecture skill profiles.
 
 Criteria follow the static G-Eval used on /grill: job relevance, coherence,
 output-contract completeness, actionability, governance, and fluency.
@@ -114,7 +114,32 @@ BRD = Profile(
     ),
 )
 
-PROFILES = {"prd": PRD, "brd": BRD}
+ARCHITECT = Profile(
+    id="architect",
+    skill_label="/architect",
+    job_requirement=(
+        "A skill whose job is to write an architecture or design package from an "
+        "approved BRD or PRD, including API contracts and a module dependency graph."
+    ),
+    output_path="signoff/",
+    handoff_tokens=("/build",),
+    template_filename="",
+    drafting_relpath="subskills/complete.md",
+    completeness=(),
+    template_groups=(
+        ("Objectives", ("objective",)),
+        ("Scope", ("scope",)),
+        ("Components", ("component", "module")),
+        ("Integrations", ("integration",)),
+        ("Data design", ("data",)),
+        ("Security", ("security",)),
+        ("Non-functional requirements", ("non-functional", "nfr")),
+        ("Risks", ("risk",)),
+        ("API", ("api",)),
+    ),
+)
+
+PROFILES = {"prd": PRD, "brd": BRD, "architect": ARCHITECT}
 
 NFR_CATEGORIES = (
     "availability",
@@ -142,12 +167,16 @@ REQUIRED_H2 = (
 def detect_profile(name: str, body: str, requested: str) -> Profile:
     if requested in PROFILES:
         return PROFILES[requested]
+    if name in PROFILES:
+        return PROFILES[name]
     lowered = body.lower()
-    if name == "prd" or ("product requirements" in lowered and "business requirements document" not in lowered):
+    if "product requirements" in lowered and "business requirements document" not in lowered:
         return PRD
-    if name == "brd" or "business requirements document" in lowered:
+    if "business requirements document" in lowered:
         return BRD
+    if "solution architecture" in lowered or "architecture and design" in lowered:
+        return ARCHITECT
     raise ValueError(
-        "This framework evaluates skills that generate a PRD or a BRD. "
-        f"Could not tell which from name {name!r}. Pass --profile prd or --profile brd."
+        "This framework evaluates skills that generate a PRD, a BRD, or an architecture design. "
+        f"Could not tell which from name {name!r}. Pass --profile prd, brd, or architect."
     )
