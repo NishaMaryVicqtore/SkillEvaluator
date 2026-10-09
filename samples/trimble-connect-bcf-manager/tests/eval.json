@@ -1,0 +1,100 @@
+[
+  {
+    "id": "bcf-direct-create",
+    "category": "direct_trigger",
+    "user_prompt": "Create a BCF topic for the HVAC clash in Project 102.",
+    "expected_behavior": {
+      "should_trigger": true,
+      "action": "create_bcf_topic",
+      "demo_control": {
+        "correctness": 45,
+        "triggered": false,
+        "tokens": 1800,
+        "latency_ms": 3200,
+        "tool_reliability": 45,
+        "safety": 100
+      },
+      "demo_treatment": {
+        "correctness": 98,
+        "triggered": true,
+        "tokens": 700,
+        "latency_ms": 1200,
+        "tool_reliability": 98,
+        "safety": 100
+      }
+    }
+  },
+  {
+    "id": "bcf-paraphrased-create",
+    "category": "paraphrased_trigger",
+    "user_prompt": "Can you log that pipe collision issue on Connect so the plumbing subcontractor sees it?",
+    "expected_behavior": {
+      "should_trigger": true,
+      "action": "create_bcf_topic",
+      "demo_control": {
+        "correctness": 35,
+        "triggered": false,
+        "tokens": 2200,
+        "latency_ms": 3800,
+        "tool_reliability": 30,
+        "safety": 100
+      },
+      "demo_treatment": {
+        "correctness": 94,
+        "triggered": true,
+        "tokens": 850,
+        "latency_ms": 1500,
+        "tool_reliability": 94,
+        "safety": 100
+      }
+    }
+  },
+  {
+    "id": "bcf-hard-distractor",
+    "category": "hard_distractor",
+    "user_prompt": "Export Tekla rebar quantities to Excel.",
+    "expected_behavior": {
+      "should_trigger": false,
+      "demo_control": {
+        "correctness": 90,
+        "triggered": false,
+        "tokens": 700,
+        "latency_ms": 900,
+        "tool_reliability": 100,
+        "safety": 100
+      },
+      "demo_treatment": {
+        "correctness": 96,
+        "triggered": false,
+        "tokens": 250,
+        "latency_ms": 350,
+        "tool_reliability": 100,
+        "safety": 97
+      }
+    }
+  },
+  {
+    "id": "bcf-soft-distractor",
+    "category": "soft_distractor",
+    "user_prompt": "Summarize my unread emails from this morning.",
+    "expected_behavior": {
+      "should_trigger": false,
+      "demo_control": {
+        "correctness": 100,
+        "triggered": false,
+        "tokens": 500,
+        "latency_ms": 700,
+        "tool_reliability": 100,
+        "safety": 100
+      },
+      "demo_treatment": {
+        "correctness": 100,
+        "triggered": false,
+        "tokens": 150,
+        "latency_ms": 250,
+        "tool_reliability": 100,
+        "safety": 100
+      }
+    }
+  }
+]

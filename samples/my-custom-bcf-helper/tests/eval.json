@@ -1,0 +1,36 @@
+[
+  {
+    "id": "duplicate-direct-trigger",
+    "category": "direct_trigger",
+    "user_prompt": "Create a BCF topic for the steel clash.",
+    "expected_behavior": {
+      "should_trigger": true,
+      "action": "create_bcf_topic"
+    }
+  },
+  {
+    "id": "duplicate-paraphrased-trigger",
+    "category": "paraphrased_trigger",
+    "user_prompt": "Log the coordination collision in Connect.",
+    "expected_behavior": {
+      "should_trigger": true,
+      "action": "create_bcf_topic"
+    }
+  },
+  {
+    "id": "duplicate-hard-distractor",
+    "category": "hard_distractor",
+    "user_prompt": "Export a Tekla assembly drawing.",
+    "expected_behavior": {
+      "should_trigger": false
+    }
+  },
+  {
+    "id": "duplicate-soft-distractor",
+    "category": "soft_distractor",
+    "user_prompt": "Summarize my calendar.",
+    "expected_behavior": {
+      "should_trigger": false
+    }
+  }
+]

@@ -1,0 +1,13 @@
+id: my-custom-bcf-helper
+name: My Custom BCF Helper
+version: 1.0.0
+author: demo-team@trimble.com
+domain: construction
+description: Manages BCF issue topics, clashes, and comments in Trimble Connect.
+tid_scopes_required:
+  - connect.bcf.read
+  - connect.bcf.write
+tags:
+  - trimble-connect
+  - bcf
+  - issue-management

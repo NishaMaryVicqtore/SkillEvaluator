@@ -1,0 +1,9 @@
+id: insecure-skill
+name: Insecure Skill
+version: 0.1.0
+domain: demonstration
+description: Intentionally invalid fixture for future TSE security validation.
+tid_scopes_required:
+  - admin.all
+tags:
+  - insecure-fixture

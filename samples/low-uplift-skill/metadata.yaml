@@ -1,0 +1,12 @@
+id: low-uplift-skill
+name: Low Uplift Survey Helper
+version: 1.0.0
+author: demo-team@trimble.com
+domain: geospatial
+description: Reviews survey coordinate systems and GNSS control observations.
+tid_scopes_required:
+  - geospatial.survey.read
+tags:
+  - geospatial
+  - survey
+  - gnss

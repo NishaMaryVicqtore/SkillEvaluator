@@ -1,0 +1,13 @@
+id: trimble-connect-bcf-manager
+name: Trimble Connect BCF Manager
+version: 0.1.0
+author: core-ai@trimble.com
+domain: construction
+description: Create and query Building Collaboration Format issue topics in Trimble Connect.
+tid_scopes_required:
+  - connect.bcf.read
+  - connect.bcf.write
+tags:
+  - trimble-connect
+  - bcf
+  - issue-management

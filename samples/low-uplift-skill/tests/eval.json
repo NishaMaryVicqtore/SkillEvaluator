@@ -1,0 +1,98 @@
+[
+  {
+    "id": "survey-direct-trigger",
+    "category": "direct_trigger",
+    "user_prompt": "Check the coordinate system for this GNSS survey.",
+    "expected_behavior": {
+      "should_trigger": true,
+      "demo_control": {
+        "correctness": 75,
+        "triggered": true,
+        "tokens": 1000,
+        "latency_ms": 1000,
+        "tool_reliability": 75,
+        "safety": 100
+      },
+      "demo_treatment": {
+        "correctness": 78,
+        "triggered": true,
+        "tokens": 950,
+        "latency_ms": 950,
+        "tool_reliability": 80,
+        "safety": 100
+      }
+    }
+  },
+  {
+    "id": "survey-paraphrased-trigger",
+    "category": "paraphrased_trigger",
+    "user_prompt": "Does this control-point file use the right reference frame?",
+    "expected_behavior": {
+      "should_trigger": true,
+      "demo_control": {
+        "correctness": 70,
+        "triggered": false,
+        "tokens": 1000,
+        "latency_ms": 1000,
+        "tool_reliability": 70,
+        "safety": 100
+      },
+      "demo_treatment": {
+        "correctness": 76,
+        "triggered": true,
+        "tokens": 950,
+        "latency_ms": 950,
+        "tool_reliability": 78,
+        "safety": 100
+      }
+    }
+  },
+  {
+    "id": "survey-hard-distractor",
+    "category": "hard_distractor",
+    "user_prompt": "Create a BCF topic for this building clash.",
+    "expected_behavior": {
+      "should_trigger": false,
+      "demo_control": {
+        "correctness": 75,
+        "triggered": false,
+        "tokens": 800,
+        "latency_ms": 800,
+        "tool_reliability": 100,
+        "safety": 100
+      },
+      "demo_treatment": {
+        "correctness": 76,
+        "triggered": false,
+        "tokens": 760,
+        "latency_ms": 760,
+        "tool_reliability": 100,
+        "safety": 100
+      }
+    }
+  },
+  {
+    "id": "survey-soft-distractor",
+    "category": "soft_distractor",
+    "user_prompt": "Draft an email about tomorrow's meeting.",
+    "expected_behavior": {
+      "should_trigger": false,
+      "demo_control": {
+        "correctness": 80,
+        "triggered": false,
+        "tokens": 600,
+        "latency_ms": 600,
+        "tool_reliability": 100,
+        "safety": 100
+      },
+      "demo_treatment": {
+        "correctness": 80,
+        "triggered": false,
+        "tokens": 570,
+        "latency_ms": 570,
+        "tool_reliability": 100,
+        "safety": 100
+      }
+    }
+  }
+]
