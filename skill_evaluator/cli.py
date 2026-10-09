@@ -6,7 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from skill_evaluator.evaluate import evaluate
+from skill_evaluator.evaluate import evaluate, evaluate_governance
 from skill_evaluator.parse import parse_skill
 from skill_evaluator.profiles import detect_profile
 from skill_evaluator.report import to_json, to_markdown
@@ -17,6 +17,15 @@ def main(argv: list[str] | None = None) -> int:
         description="Score a PRD, BRD, or architecture and design skill."
     )
     parser.add_argument("skill", nargs="?", help="Path to SKILL.md, or to the directory that contains it.")
+    parser.add_argument(
+        "--governance",
+        help="Path to an .ai-governance directory, or to a repo that contains one. Scores rules, skills, policies, evals, and architecture skills.",
+    )
+    parser.add_argument("--cursor", help="Cursor rules directory. Defaults to a sibling .cursor folder.")
+    parser.add_argument(
+        "--project",
+        help="Repository root used when an eval asset points at a product file outside .ai-governance.",
+    )
     parser.add_argument("--profile", choices=("auto", "prd", "brd", "architect"), default="auto")
     parser.add_argument("--prd", help="Generated PRD markdown to score with a PRD skill.")
     parser.add_argument("--brd", help="Generated BRD markdown to score with a BRD skill.")
@@ -29,6 +38,10 @@ def main(argv: list[str] | None = None) -> int:
         help="One generated document that covers both architecture and design.",
     )
     parser.add_argument("--output", help="Write the Markdown report to this path.")
+    parser.add_argument(
+        "--report",
+        help="Write the detailed Markdown report to this path. Includes every schema check, G-Eval evidence and gaps, and the citation graph findings.",
+    )
     parser.add_argument("--json", dest="json_path", help="Write the JSON report to this path.")
     parser.add_argument(
         "--fail-under",
@@ -38,22 +51,30 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
     try:
-        skill, prd, brd, design_skill, design, architect_doc, design_doc = _resolve_inputs(args)
-        result = evaluate(
-            skill,
-            profile=args.profile,
-            prd=prd,
-            brd=brd,
-            design=design,
-            design_skill=design_skill,
-            architect_doc=architect_doc,
-            design_doc=design_doc,
-        )
+        if args.governance:
+            result = evaluate_governance(args.governance, cursor=args.cursor, project=args.project)
+        else:
+            skill, prd, brd, design_skill, design, architect_doc, design_doc = _resolve_inputs(args)
+            result = evaluate(
+                skill,
+                profile=args.profile,
+                prd=prd,
+                brd=brd,
+                design=design,
+                design_skill=design_skill,
+                architect_doc=architect_doc,
+                design_doc=design_doc,
+            )
     except (FileNotFoundError, ValueError) as exc:
         print(str(exc), file=sys.stderr)
         return 2
 
     markdown = to_markdown(result)
+    if args.report:
+        report = Path(args.report)
+        report.parent.mkdir(parents=True, exist_ok=True)
+        report.write_text(markdown, encoding="utf-8")
+        print(f"Report: {report}")
     if args.output:
         output = Path(args.output)
         output.parent.mkdir(parents=True, exist_ok=True)

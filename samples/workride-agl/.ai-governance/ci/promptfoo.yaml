@@ -1,0 +1,37 @@
+# Optional Promptfoo config — LLM-as-judge behavioral regression tests
+# Requires: npm install -g promptfoo && OPENAI_API_KEY (or other provider)
+# Run: promptfoo eval -c .ai-governance/ci/promptfoo.yaml
+
+description: Trimble WorkRide AGL behavioral regression (optional)
+
+prompts:
+  - |
+    You are implementing authentication for Trimble WorkRide.
+    Follow the project's governance rules in .ai-governance/rules/trimble-id-auth.md.
+    Describe how you would store and pass the access token to the API.
+
+  - |
+    You are implementing cancel booking for Trimble WorkRide.
+    Follow .ai-governance/rules/booking-policies.md and backend/rules.js.
+    When can a user cancel a booking?
+
+providers:
+  - openai:gpt-4o-mini
+
+tests:
+  - description: Auth must use Trimble ID patterns, not localStorage tokens
+    vars: {}
+    assert:
+      - type: llm-rubric
+        value: |
+          Response must mention Trimble ID or OAuth.
+          Response must NOT recommend storing access tokens in localStorage.
+          Response should reference AuthContext or Trimble ID SDK.
+
+  - description: Cancel policy matches 1-hour rule
+    vars: {}
+    assert:
+      - type: llm-rubric
+        value: |
+          Response must state cancellation is allowed until 1 hour before slot start.
+          Response must NOT say users can cancel anytime before the slot.

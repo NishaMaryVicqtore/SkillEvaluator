@@ -1,0 +1,45 @@
+{
+  "skill": "validate-booking-rules",
+  "tests": [
+    { "file": "test/backend/rules.test.js", "name": "marks morning slots and evening slots" },
+    { "file": "test/backend/rules.test.js", "name": "sets morning cutoff to 8 PM the previous day" },
+    { "file": "test/backend/rules.test.js", "name": "sets evening cutoff to 3 PM the same day" },
+    { "file": "test/backend/rules.test.js", "name": "allows cancel until 1 hour before slot start" },
+    { "file": "test/backend/rules.test.js", "name": "blocks a user only while blocked_until is in the future" },
+    { "file": "test/backend/rules.test.js", "name": "counts consecutive no-shows from the most recent booking" },
+    { "file": "test/backend/rules.test.js", "name": "sets a 1-day block after two consecutive no-shows" },
+    { "file": "test/backend/rules.test.js", "name": "rejects weekends and listed public holidays" },
+    { "file": "test/backend/api.test.js", "name": "reports weekend and holiday dates as not bookable" },
+    { "file": "test/backend/api.test.js", "name": "requires date for bookable-date and can-book helpers" },
+    { "file": "test/backend/api.test.js", "name": "returns cutoff info for a slot" },
+    { "file": "test/backend/api.test.js", "name": "rejects a booking with missing fields" },
+    { "file": "test/backend/api.test.js", "name": "rejects booking on a weekend" },
+    { "file": "test/backend/api.test.js", "name": "rejects booking for a blocked user" },
+    { "file": "test/backend/api.test.js", "name": "creates a booking, then rejects a second booking the same day" },
+    { "file": "test/backend/api.test.js", "name": "cancels an active future booking" },
+    { "file": "test/backend/api.test.js", "name": "marks no-show and blocks after two consecutive no-shows" },
+    { "file": "test/backend/api.test.js", "name": "keeps the web booking path blocked even when an urgent reason is sent" }
+  ],
+  "assets": [
+    {
+      "description": "Booking policy states the cutoffs, cancel window, and no-show block",
+      "file": ".ai-governance/rules/booking-policies.md",
+      "contains": ["8:00 PM", "3:00 PM", "1 hour", "2 consecutive", "backend/rules.js", "canCancel", "isUserBlocked"]
+    },
+    {
+      "description": "rules.js keeps the 8 PM morning and 3 PM evening cutoffs",
+      "file": "backend/rules.js",
+      "contains": ["d.setHours(20, 0, 0, 0)", "d.setHours(15, 0, 0, 0)", "60 * 60 * 1000", "consecutive < 2"]
+    },
+    {
+      "description": "Web booking route still refuses a blocked employee",
+      "file": "backend/server.js",
+      "contains": ["if (rules.isUserBlocked(user)) return res.status(403)"]
+    },
+    {
+      "description": "Baseline PRD keeps the hard no-show block",
+      "file": "prd/workride-prd.md",
+      "contains": ["cannot book for the next day"]
+    }
+  ]
+}

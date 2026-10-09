@@ -6,7 +6,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-from tse.models import OverallEvalReport
+from tse.models import GovernanceReport, OverallEvalReport
 
 
 def _status_text(label: str, passed: bool) -> Text:
@@ -137,6 +137,76 @@ def render_cli_scorecard(report: OverallEvalReport) -> None:
 
     console.print(table)
     console.print(Panel(_overall_rationale(report), title="Decision rationale"))
+
+
+def render_governance_scorecard(report: GovernanceReport) -> None:
+    """Render rule, skill, policy, eval, and architecture results."""
+    console = Console()
+    badge = (
+        Text("[PASSED]", style="bold green")
+        if report.passed
+        else Text("[FAILED]", style="bold red")
+    )
+    header = Text()
+    header.append(f"Governance: {report.governance_path}\n", style="bold")
+    if report.cursor_path:
+        header.append(f"Cursor rules: {report.cursor_path}\n")
+    if report.project_path:
+        header.append(f"Project: {report.project_path}\n")
+    header.append_text(badge)
+    console.print(Panel(header, title="TSE governance", expand=False))
+
+    table = Table(title="Rules, skills, policies, evals, and architecture")
+    table.add_column("Kind", style="bold")
+    table.add_column("Asset")
+    table.add_column("Status")
+    table.add_column("Details", overflow="fold")
+    labels = {
+        "rule": "Rule",
+        "skill": "Skill",
+        "policy": "Policy",
+        "eval": "Eval",
+        "architecture": "Architecture skill",
+    }
+    for asset in report.assets:
+        table.add_row(
+            labels.get(asset.kind, asset.kind),
+            asset.name,
+            _status_text("PASSED" if asset.passed else "FAILED", asset.passed),
+            "No violations" if asset.passed else "; ".join(asset.violations),
+        )
+    console.print(table)
+
+
+def generate_governance_md(report: GovernanceReport) -> str:
+    """Write a markdown report for a governance evaluation."""
+    labels = {
+        "rule": "Rule",
+        "skill": "Skill",
+        "policy": "Policy",
+        "eval": "Eval",
+        "architecture": "Architecture skill",
+    }
+    verdict = "PASSED" if report.passed else "FAILED"
+    lines = [
+        "# TSE governance report",
+        "",
+        f"- **Governance:** `{_md(report.governance_path)}`",
+        f"- **Cursor rules:** `{_md(report.cursor_path or 'N/A')}`",
+        f"- **Project:** `{_md(report.project_path or 'N/A')}`",
+        f"- **Overall verdict:** **{verdict}**",
+        "",
+        "| Kind | Asset | Status | Details |",
+        "| --- | --- | --- | --- |",
+    ]
+    for asset in report.assets:
+        detail = "No violations" if asset.passed else "; ".join(asset.violations)
+        lines.append(
+            f"| {labels.get(asset.kind, asset.kind)} | {_md(asset.name)} | "
+            f"{'PASSED' if asset.passed else 'FAILED'} | {_md(detail)} |"
+        )
+    lines.append("")
+    return "\n".join(lines)
 
 
 def _md(value: object) -> str:

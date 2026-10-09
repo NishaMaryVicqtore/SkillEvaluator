@@ -5,6 +5,7 @@ from typer.testing import CliRunner
 
 from tse import tier2_dedup
 from tse.cli import app
+from tse.governance import evaluate_governance
 from tse.tier1_static import run_tier1_scan
 from tse.tier2_dedup import run_tier2_dedup
 from tse.tier3_sandbox import run_tier3_sandbox
@@ -104,3 +105,38 @@ def test_pipeline_failure_exit_codes(tmp_path: Path) -> None:
     assert duplicate_result.exit_code == 1
     assert "REJECTED_DUPLICATE" in duplicate_result.output
     assert no_demo_result.exit_code == 2
+
+
+def test_governance_scores_workride_assets() -> None:
+    report = evaluate_governance(SAMPLES / "workride-agl")
+    kinds = {item.kind for item in report.assets}
+    assert kinds == {"policy", "rule", "skill", "eval", "architecture"}
+    assert report.passed, [item.violations for item in report.assets if not item.passed]
+    assert any(item.name == "workride-agl" and item.kind == "rule" for item in report.assets)
+    assert any(item.kind == "architecture" for item in report.assets)
+
+
+def test_governance_rejects_a_skill_missing_a_section(tmp_path: Path) -> None:
+    root = tmp_path / "repo"
+    copytree(SAMPLES / "workride-agl", root)
+    skill = root / ".ai-governance" / "skills" / "validate-booking-rules" / "SKILL.md"
+    text = skill.read_text(encoding="utf-8").replace("## Do not", "## Later")
+    skill.write_text(text, encoding="utf-8")
+
+    report = evaluate_governance(root)
+    failed = next(item for item in report.assets if item.name == "validate-booking-rules" and item.kind == "skill")
+    assert not report.passed
+    assert any("Do not" in violation for violation in failed.violations)
+
+
+def test_governance_cli_writes_a_report(tmp_path: Path) -> None:
+    output = tmp_path / "governance.md"
+    result = runner.invoke(
+        app,
+        ["governance", str(SAMPLES / "workride-agl"), "--output", str(output)],
+    )
+    assert result.exit_code == 0, result.output
+    text = output.read_text(encoding="utf-8")
+    assert "PASSED" in text
+    assert "Architecture skill" in text
+    assert "Policy" in text

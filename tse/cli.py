@@ -8,8 +8,9 @@ from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.text import Text
 
+from tse.governance import evaluate_governance
 from tse.models import OverallEvalReport
-from tse.reporter import generate_benchmark_md, render_cli_scorecard
+from tse.reporter import generate_benchmark_md, generate_governance_md, render_cli_scorecard, render_governance_scorecard
 from tse.tier1_static import run_tier1_scan
 from tse.tier2_dedup import run_tier2_dedup
 from tse.tier3_sandbox import run_tier3_sandbox
@@ -219,6 +220,32 @@ def deduplicate(skill_path: Path) -> None:
     console.print(Text(f"Similarity backend: {result.similarity_backend}"))
     console.print(Text(f"Recommendation: {result.recommendation}"))
     if result.status in {"ERROR", "REJECTED_DUPLICATE"}:
+        raise typer.Exit(code=1)
+
+
+@app.command()
+def governance(
+    governance_path: Path,
+    cursor: Path | None = typer.Option(
+        None,
+        "--cursor",
+        help="Cursor rules directory. Defaults to a sibling .cursor folder when the governance path is .ai-governance.",
+    ),
+    project: Path | None = typer.Option(
+        None,
+        "--project",
+        help="Repository root used to check eval asset files that live outside .ai-governance.",
+    ),
+    output: Path | None = typer.Option(None, "--output", help="Write the markdown report to this path."),
+) -> None:
+    """Evaluate rules, skills, policies, evals, and architecture skills."""
+    report = evaluate_governance(governance_path, cursor_path=cursor, project_path=project)
+    render_governance_scorecard(report)
+    if output is not None:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(generate_governance_md(report), encoding="utf-8")
+        console.print(Text(f"Governance report: {output}"))
+    if not report.passed:
         raise typer.Exit(code=1)
 
 

@@ -1,0 +1,36 @@
+---
+description: Trimble WorkRide Agent Governance Lifecycle — load behavioral assets from .ai-governance/
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Trimble WorkRide — AGL behavioral guardrails
+
+Source of truth for AI instructions: `.ai-governance/` (versioned, PR-reviewed, CI-validated).
+
+Before generating or modifying code, follow:
+
+1. **Security** — `.ai-governance/global-security-policy.md`
+   - No secrets in source; never commit `.env`
+   - Do not store tokens in `localStorage`
+
+2. **Architecture** — `.ai-governance/rules/architecture-guidelines.md` and `.ai-governance/architectural-standards.md`
+   - Node/Express backend, React/Vite frontend, JSON store
+   - API calls via `frontend/src/api.js`
+
+3. **Authentication** — `.ai-governance/rules/trimble-id-auth.md`
+   - Production: Trimble ID OAuth (`TRIMBLE_ID_SETUP.md`)
+   - Never store access tokens in `localStorage`
+   - Dev email login is local-only; do not copy to production paths
+
+4. **Booking policies** — `.ai-governance/rules/booking-policies.md`
+   - Must match `backend/rules.js` (cutoffs, cancel window, no-show block)
+   - Morning book by 8 PM prior day; evening by 3 PM same day
+   - Cancel until 1 hour before slot; 2 no-shows → 1-day booking block
+   - Chat may override that one-day block only for a valid urgent reason; see the “PRD change — urgent chat override” section in `.ai-governance/skills/validate-chat-override/SKILL.md`
+
+5. **Skills** — use `.ai-governance/skills/validate-booking-rules/SKILL.md` when changing booking flows, and `.ai-governance/skills/validate-chat-override/SKILL.md` when changing the chat booking path
+   - Each skill's test cases are in its `evals.json`; run `npm run skills:eval` before merge
+
+Traceability: reference `behavior-manifest.json` bundleHash in PRs as `AGL-MANIFEST: <hash>`.

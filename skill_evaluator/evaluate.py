@@ -8,9 +8,10 @@ from pathlib import Path
 
 from skill_evaluator.architect_eval import AlgorithmScore, score_architect_design, score_architect_skill
 from skill_evaluator.geval import CriterionScore, score_criteria
+from skill_evaluator.governance_eval import score_governance
 from skill_evaluator.parse import ParsedSkill, parse_skill
 from skill_evaluator.prd_outcome import PRD_WEIGHTS, ArtifactResult, score_brd, score_prd
-from skill_evaluator.profiles import WEIGHTS, Profile, detect_profile
+from skill_evaluator.profiles import GOVERNANCE, WEIGHTS, Profile, detect_profile
 from skill_evaluator.schema_checks import Assertion, build_assertions, validation_errors
 
 SCHEMA_BLEND = 0.4
@@ -273,6 +274,37 @@ def verdict_for(criteria: list[CriterionScore], score: float) -> str:
     if score >= 4.0:
         return "Acceptable with documented gaps"
     return "Below the acceptable-with-gaps line"
+
+
+def evaluate_governance(
+    governance: Path | str,
+    cursor: Path | str | None = None,
+    project: Path | str | None = None,
+    evaluated_on: date | None = None,
+) -> Evaluation:
+    """Score rules, skills, policies, evals, and architecture skills with the three algorithms."""
+    rows = score_governance(Path(governance), Path(cursor) if cursor else None, Path(project) if project else None)
+    if not rows:
+        raise ValueError("No rules, skills, policies, evals, or architecture skills were found.")
+    subjects = tuple(ScoredSubject(row.role, row.path, row.algorithms) for row in rows)
+    skill_path = next((Path(row.path) for row in rows if row.role.startswith("Skill —")), Path(rows[0].path))
+    parsed = parse_skill(skill_path)
+    schema_groups = [algorithm.checks for row in rows for algorithm in row.algorithms if algorithm.id == "schema"]
+    schema_checks = [check for group in schema_groups for check in group]
+    schema_errors = [message for group in schema_groups for message in validation_errors(list(group))]
+    geval = next(algorithm for algorithm in rows[0].algorithms if algorithm.id == "geval")
+    return Evaluation(
+        skill_path=parsed.path,
+        profile=GOVERNANCE,
+        parsed=parsed,
+        assertions=schema_checks,
+        criteria=list(geval.criteria),
+        schema_errors=schema_errors,
+        evaluated_on=evaluated_on or date.today(),
+        algorithms=subjects[0].algorithms,
+        target="governance",
+        subjects=subjects,
+    )
 
 
 def evaluate(

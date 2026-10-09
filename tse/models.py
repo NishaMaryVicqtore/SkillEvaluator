@@ -49,6 +49,23 @@ class Tier3Result(BaseModel):
     passed: bool
 
 
+class GovernanceAsset(BaseModel):
+    kind: str
+    name: str
+    path: str
+    passed: bool
+    score: float
+    violations: list[str]
+
+
+class GovernanceReport(BaseModel):
+    governance_path: str
+    cursor_path: str | None = None
+    project_path: str | None = None
+    passed: bool
+    assets: list[GovernanceAsset]
+
+
 class OverallEvalReport(BaseModel):
     skill_id: str
     skill_version: str

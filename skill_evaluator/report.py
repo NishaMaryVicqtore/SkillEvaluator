@@ -177,6 +177,8 @@ def to_json(result: Evaluation) -> str:
 
 
 def _mode(result: Evaluation) -> str:
+    if result.target == "governance":
+        return "governance"
     if result.subjects and any(item.role.endswith("document") for item in result.subjects):
         return "skill+design"
     if result.subjects or result.algorithms:
@@ -190,9 +192,12 @@ def _mode(result: Evaluation) -> str:
 
 def _architect_markdown(result: Evaluation) -> str:
     subjects = result.subjects or _legacy_subjects(result)
-    choice = "Architect and design skill"
-    if any(item.role.endswith("document") for item in subjects):
-        choice = "Architect and design skill with the generated documents"
+    if result.target == "governance":
+        choice = "Rules, skills, policies, evals, and architecture skills"
+    else:
+        choice = "Architect and design skill"
+        if any(item.role.endswith("document") for item in subjects):
+            choice = "Architect and design skill with the generated documents"
     lines = [
         f"# {choice} evaluation — {result.profile.skill_label}",
         "",
@@ -204,7 +209,9 @@ def _architect_markdown(result: Evaluation) -> str:
         if subject.path != str(result.skill_path):
             lines.append(f"**{subject.role}:** `{subject.path}`  ")
     document_count = sum(1 for item in subjects if item.role.endswith("document"))
-    if document_count:
+    if result.target == "governance":
+        blend = "Each rule, skill, policy, eval, and architecture skill is scored on JSON/Markdown schema parsing, G-Eval, and topological graph validation. The combined score is the average of those scores."
+    elif document_count:
         blend = "Each skill and each document is scored on all three algorithms. The combined score is the average of those scores."
     elif len(subjects) > 1:
         blend = "Each skill is scored on all three algorithms. The combined score is the average of the skill scores."
@@ -293,10 +300,9 @@ def _algorithm_blocks(algorithms, heading: str) -> list[str]:
                 mark = "Pass" if check.passed else "Fail"
                 lines.append(f"| {check.statement} | {mark} |")
             failed = [check for check in algorithm.checks if not check.passed]
-            if failed:
-                lines.append("")
-                for check in failed:
-                    lines.append(f"- {check.statement}: {check.detail}")
+            lines.append("")
+            for check in algorithm.checks:
+                lines.append(f"- {check.statement}: {check.detail}")
             lines.append("")
         for item in algorithm.criteria:
             lines.extend(_criterion_block(item, algorithm.label.lower()))

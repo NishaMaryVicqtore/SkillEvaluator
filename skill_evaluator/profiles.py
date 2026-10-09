@@ -114,6 +114,21 @@ BRD = Profile(
     ),
 )
 
+GOVERNANCE = Profile(
+    id="governance",
+    skill_label="governance",
+    job_requirement=(
+        "A bundle of rules, skills, policies, evals, and architecture skills "
+        "that steer an agent."
+    ),
+    output_path="",
+    handoff_tokens=(),
+    template_filename="",
+    drafting_relpath="",
+    completeness=(),
+    template_groups=(),
+)
+
 ARCHITECT = Profile(
     id="architect",
     skill_label="/architect",

@@ -99,6 +99,42 @@ The mock registry contains `trimble-connect-bcf-manager` (previous composite 85.
 
 `validate` overwrites `BENCHMARK.md` in the skill directory.
 
+### Governance assets
+
+`governance` scores the behavioral assets in an `.ai-governance` directory and the Cursor rules that load them. It checks five kinds:
+
+| Kind | Where it looks | What must be true |
+| --- | --- | --- |
+| Policy | A root markdown file whose name contains `policy` | Covers secrets, authentication or tokens, and a prohibition. No hardcoded secrets or prompt-injection phrases |
+| Rule | `rules/*.md`, excluding architecture standards, and `.cursor/rules/*.mdc` | States a constraint. A Cursor rule has `description` plus `alwaysApply` or `globs`, and points at `.ai-governance/` |
+| Skill | `skills/<name>/SKILL.md` | Frontmatter `name` matches the folder, `description` is set, and the file has When to use, Procedure, Output checklist, Evaluation, and Do not. The procedure has at least three numbered steps |
+| Eval | `skills/<name>/evals.json` and `ci/promptfoo.yaml` | The eval names the skill and lists tests with a file and a name. Asset checks that point inside `.ai-governance` must match. Promptfoo lists prompts and assertions |
+| Architecture skill | `architectural-standards.md`, `rules/architecture-guidelines.md`, and a skill whose name or description says `architect` | Names the stack, where files go, an API shape, and a pattern to avoid |
+
+Pass `--project` with the repository root when eval assets also point at product files such as `backend/rules.js`. Without it, those external files are left unchecked. A sibling `.cursor` directory is picked up automatically. Pass `--cursor` when the rules live somewhere else.
+
+```powershell
+python -m tse governance samples\workride-agl
+python -m tse governance C:\Users\nvicqto\DemoProject\.ai-governance --cursor C:\Users\nvicqto\DemoProject\.cursor --project C:\Users\nvicqto\DemoProject --output governance-report.md
+```
+
+The sample under `samples/workride-agl` is the WorkRide `.ai-governance` tree plus `.cursor/rules/workride-agl.mdc`. Exit 0 means every asset passed. Exit 1 means at least one asset failed.
+
+The same files can be scored with the three skill-evaluator algorithms. Each rule, skill, policy, eval, and architecture skill gets its own three scores, and the combined score is their average.
+
+| Algorithm | What it checks |
+| --- | --- |
+| JSON/Markdown Schema Parsing | Headings, frontmatter, required sections, and eval documents checked with JSON Schema draft 2020-12. A failed boolean reports `True was expected` |
+| G-Eval Framework (LLM-as-a-Judge) | A fixed rubric scores an integer from 1 to 5. A separate judge model is not called |
+| Topological Graph Validation | Citations between the assets form a graph. A cycle is a deadlock, an asset with no citations is an orphan, and a high fan-out lowers the coupling score |
+
+```powershell
+python -m skill_evaluator --governance samples\workride-agl --report governance-algorithms.md --json governance-algorithms.json
+python -m skill_evaluator --governance C:\Users\nvicqto\DemoProject\.ai-governance --cursor C:\Users\nvicqto\DemoProject\.cursor --project C:\Users\nvicqto\DemoProject
+```
+
+`--report` writes the detailed Markdown report: the score table, every schema check with its detail, each G-Eval criterion with evidence and gaps, and the deadlock, orphan, and coupling findings. `--fail-under 4.0` exits 1 when the average of those asset scores is below that line. A criterion under 3 fails that dimension.
+
 ## PRD, BRD, and architecture packs
 
 `python -m skill_evaluator` scores a skill pack that writes a PRD, a BRD, or an architecture design. Pass a `SKILL.md`, or that skill file plus the document it produced.

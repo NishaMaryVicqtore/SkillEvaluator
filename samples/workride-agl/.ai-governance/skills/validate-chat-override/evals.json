@@ -1,0 +1,43 @@
+{
+  "skill": "validate-chat-override",
+  "tests": [
+    { "file": "test/backend/rules.test.js", "name": "accepts only the three urgent categories with a 15 to 500 character explanation" },
+    { "file": "test/backend/api.test.js", "name": "keeps the web booking path blocked even when an urgent reason is sent" },
+    { "file": "test/backend/api.test.js", "name": "refuses a chat booking for a blocked user without a valid urgent reason" },
+    { "file": "test/backend/api.test.js", "name": "books from chat for each urgent category and leaves the block in place" },
+    { "file": "test/backend/api.test.js", "name": "still rejects a weekend and a past cutoff on the chat path" },
+    { "file": "test/backend/api.test.js", "name": "books from chat without an urgent reason when the employee is not blocked" }
+  ],
+  "assets": [
+    {
+      "description": "Chat PRD defines the chat-only exception and its three categories",
+      "file": "prd/workride-chat-prd.md",
+      "contains": ["chat only", "medical_emergency", "family_emergency", "client_visit", "validateUrgentOverride", "PRD change — urgent chat override"]
+    },
+    {
+      "description": "Baseline PRD does not describe the urgent override",
+      "file": "prd/workride-prd.md",
+      "notContains": ["medical_emergency", "family_emergency", "client_visit", "validateUrgentOverride"]
+    },
+    {
+      "description": "Booking policy records the chat-only exception",
+      "file": ".ai-governance/rules/booking-policies.md",
+      "contains": ["Chat only", "validateUrgentOverride", "medical_emergency", "family_emergency", "client_visit"]
+    },
+    {
+      "description": "rules.js exports the urgent override check",
+      "file": "backend/rules.js",
+      "contains": ["function validateUrgentOverride", "medical_emergency", "family_emergency", "client_visit", "text.length < 15", "text.length > 500"]
+    },
+    {
+      "description": "Chat route checks the override and names this skill in its decision trace",
+      "file": "backend/server.js",
+      "contains": ["app.post('/api/chat/bookings'", "rules.validateUrgentOverride(", "validate-chat-override", "decision_trace"]
+    },
+    {
+      "description": "Booking skill points to this skill for the chat exception",
+      "file": ".ai-governance/skills/validate-booking-rules/SKILL.md",
+      "contains": ["validate-chat-override", "PRD change — urgent chat override"]
+    }
+  ]
+}
