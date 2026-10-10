@@ -38,26 +38,35 @@ def test_governance_schema_reports_true_was_expected(tmp_path: Path) -> None:
     assert any("True was expected" in message for message in result.schema_errors)
 
 
-def test_governance_cli_writes_the_three_algorithm_report(tmp_path: Path) -> None:
+def test_governance_cli_writes_the_three_algorithm_report(tmp_path: Path, capsys) -> None:
     report = tmp_path / "report.md"
-    payload = tmp_path / "report.json"
+    prd = ROOT / "tests" / "fixtures" / "good_prd" / "SKILL.md"
+    architect = ROOT / "tests" / "fixtures" / "good_architect" / "SKILL.md"
     exit_code = main(
         [
+            str(prd),
+            "--architect-skill",
+            str(architect),
             "--governance",
             str(SAMPLE),
             "--report",
             str(report),
-            "--json",
-            str(payload),
         ]
     )
-    assert exit_code == 0
+    assert exit_code == 0, report.read_text(encoding="utf-8") if report.is_file() else "no report"
     text = report.read_text(encoding="utf-8")
-    assert SCHEMA_LABEL in text
-    assert GEVAL_LABEL in text
-    assert GRAPH_LABEL in text
-    assert "Deadlocks" in text
-    assert "Steps:" in text
-    assert "Evidence from the" in text
-    assert "No secret marker is hardcoded: " in text
-    assert '"mode": "governance"' in payload.read_text(encoding="utf-8")
+    assert "| Metric | Value |" in text
+    assert "## PRD skill" in text
+    assert "## Architecture skills" in text
+    assert "## Rules" in text
+    assert "| G-Eval |" in text
+    assert "| JSON Schema |" in text
+    assert "| Topological Graph Validation |" in text
+    assert "| Deadlocks |" in text
+    assert "| Combined |" in text
+    assert "## Gaps and solutions" in text
+    assert "| Gap | Where | Solution |" in text
+    shown = capsys.readouterr().out
+    assert "## PRD skill" in shown
+    assert "## Gaps and solutions" in shown
+    assert f"Wrote {report}" in shown

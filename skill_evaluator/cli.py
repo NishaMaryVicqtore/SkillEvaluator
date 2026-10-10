@@ -6,6 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from skill_evaluator.crisp_report import crisp_evaluation_report, suite_report
 from skill_evaluator.evaluate import evaluate, evaluate_governance
 from skill_evaluator.parse import parse_skill
 from skill_evaluator.profiles import detect_profile
@@ -40,7 +41,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", help="Write the Markdown report to this path.")
     parser.add_argument(
         "--report",
-        help="Write the detailed Markdown report to this path. Includes every schema check, G-Eval evidence and gaps, and the citation graph findings.",
+        help="Write a crisp Markdown report of Metric and Value rows for G-Eval, JSON Schema, and Topological Graph Validation.",
     )
     parser.add_argument("--json", dest="json_path", help="Write the JSON report to this path.")
     parser.add_argument(
@@ -50,6 +51,8 @@ def main(argv: list[str] | None = None) -> int:
         help="Exit 1 when the combined score is below this threshold.",
     )
     args = parser.parse_args(argv)
+    if args.report and (args.governance or not (args.skill or args.architect_skill or args.design_skill or args.prd or args.brd)):
+        return _write_suite_report(args)
     try:
         if args.governance:
             result = evaluate_governance(args.governance, cursor=args.cursor, project=args.project)
@@ -70,23 +73,61 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     markdown = to_markdown(result)
+    shown = False
     if args.report:
-        report = Path(args.report)
-        report.parent.mkdir(parents=True, exist_ok=True)
-        report.write_text(markdown, encoding="utf-8")
-        print(f"Report: {report}")
+        _save(Path(args.report), crisp_evaluation_report(result))
+        shown = True
     if args.output:
-        output = Path(args.output)
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(markdown, encoding="utf-8")
+        _save(Path(args.output), markdown)
+        shown = True
     if args.json_path:
         payload = Path(args.json_path)
         payload.parent.mkdir(parents=True, exist_ok=True)
         payload.write_text(to_json(result), encoding="utf-8")
-    _print_summary(result)
+    if not shown:
+        _print_summary(result)
     if args.fail_under is not None and result.combined < args.fail_under:
         return 1
     return 0
+
+
+def _write_suite_report(args) -> int:
+    try:
+        markdown = suite_report(
+            governance=args.governance,
+            prd_skill=args.skill,
+            architect_skill=args.architect_skill,
+            project=args.project,
+        )
+    except (FileNotFoundError, ValueError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    _save(Path(args.report), markdown)
+    if args.fail_under is None:
+        return 0
+    combined = _combined_from_report(markdown)
+    return 1 if combined < args.fail_under else 0
+
+
+def _save(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+    _show(text)
+    print(f"Wrote {path}")
+
+
+def _show(text: str) -> None:
+    data = text if text.endswith("\n") else text + "\n"
+    encoding = getattr(sys.stdout, "encoding", None) or "utf-8"
+    safe = data.encode(encoding, errors="replace").decode(encoding, errors="replace")
+    print(safe, end="")
+
+
+def _combined_from_report(markdown: str) -> float:
+    for line in markdown.splitlines():
+        if line.startswith("| Combined |"):
+            return float(line.split("|")[2].strip())
+    return 0.0
 
 
 def _resolve_inputs(args):

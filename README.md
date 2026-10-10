@@ -129,11 +129,11 @@ The same files can be scored with the three skill-evaluator algorithms. Each rul
 | Topological Graph Validation | Citations between the assets form a graph. A cycle is a deadlock, an asset with no citations is an orphan, and a high fan-out lowers the coupling score |
 
 ```powershell
-python -m skill_evaluator --governance samples\workride-agl --report governance-algorithms.md --json governance-algorithms.json
-python -m skill_evaluator --governance C:\Users\nvicqto\DemoProject\.ai-governance --cursor C:\Users\nvicqto\DemoProject\.cursor --project C:\Users\nvicqto\DemoProject
+python -m skill_evaluator --governance samples\workride-agl --report governance-algorithms.md
+python -m skill_evaluator --report crisp-report.md
 ```
 
-`--report` writes the detailed Markdown report: the score table, every schema check with its detail, each G-Eval criterion with evidence and gaps, and the deadlock, orphan, and coupling findings. `--fail-under 4.0` exits 1 when the average of those asset scores is below that line. A criterion under 3 fails that dimension.
+`--report` writes a crisp report and prints that same report on the screen. `--output` does the same for the long report. The top table and each section use two columns, Metric and Value. The sections are the PRD skill, the architecture skills, and the rules. Each one lists G-Eval, JSON Schema, and Topological Graph Validation, then the metric inside that algorithm, then Combined. The report ends with the consolidated gaps and a one-line solution for each. `--output` still writes the long report for a single skill run. `--fail-under 4.0` exits 1 when the average of those three section scores is below that line.
 
 ## PRD, BRD, and architecture packs
 
